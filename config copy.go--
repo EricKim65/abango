@@ -38,15 +38,16 @@ type EnvConf struct {
 	DbStr string
 }
 
-func GetEnvConf() error {
+func GetEnvConf() (EnvConf, error) {
 
 	conf := "conf/"
 	RunFilename := conf + "run_conf.json"
 
+	var e EnvConf
 	var run RunConf
 
 	if file, err := os.Open(RunFilename); err != nil {
-		return err
+		return e, err
 	} else {
 		decoder := json.NewDecoder(file)
 		err = decoder.Decode(&run)
@@ -60,17 +61,17 @@ func GetEnvConf() error {
 	}
 
 	if file, err := os.Open(filename); err != nil {
-		return err
+		return e, err
 	} else {
 		decoder := json.NewDecoder(file)
-		err = decoder.Decode(&XEnv)
+		err = decoder.Decode(&e)
 	}
 
-	if XEnv.DbType == "mysql" {
-		XEnv.DbStr = XEnv.DbUser + ":" + XEnv.DbPassword + "@tcp(" + XEnv.DbHost + ":" + XEnv.DbPort + ")/" + XEnv.DbPrefix + XEnv.DbName + "?charset=utf8"
-	} else if XEnv.DbType == "mssql" {
+	if e.DbType == "mysql" {
+		e.DbStr = e.DbUser + ":" + e.DbPassword + "@tcp(" + e.DbHost + ":" + e.DbPort + ")/" + e.DbPrefix + e.DbName + "?charset=utf8"
+	} else if e.DbType == "mssql" {
 		// Add on more DbStr of Db types
 	}
 
-	return nil
+	return e, nil
 }
