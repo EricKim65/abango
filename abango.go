@@ -9,7 +9,7 @@ import (
 )
 
 func init() {
-	okLog("Abango Initialized")
+	OkLog("Abango Initialized")
 }
 
 func Run(params ...string) {
@@ -20,7 +20,7 @@ func Run(params ...string) {
 		// db, err := xorm.NewEngine(XEnv.DbType, "root:root@tcp(127.0.0.1:3306)/kangan?charset=utf8&parseTime=True")
 
 		if err == nil {
-			okLog(XEnv.DbType + ":(" + XEnv.DbHost + ":" + XEnv.DbPort + ")->" + XEnv.DbPrefix + XEnv.DbName + " DB connected !")
+			OkLog(XEnv.DbType + ":(" + XEnv.DbHost + ":" + XEnv.DbPort + ")->[" + XEnv.DbPrefix + XEnv.DbName + "] DB Schema ")
 		} else {
 			panic(fmt.Errorf("Database open error: %s \n", err))
 		}
@@ -29,7 +29,12 @@ func Run(params ...string) {
 		db.SetMaxOpenConns(100)
 		db.SetMaxIdleConns(20)
 		db.SetConnMaxLifetime(60 * time.Second)
-		XDb = db
+		if _, err := db.IsTableExist("aaa"); err != nil { //Connect Check
+			MyErr("DATABASE DISCONNECTED", err, true)
+		} else {
+			OkLog("DATABASE CONNECTED")
+		}
+		XDB = db
 	}
 
 }

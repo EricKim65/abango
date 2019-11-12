@@ -9,7 +9,7 @@ import (
 
 var (
 	XEnv *EnvConf
-	XDb  *xorm.Engine
+	XDB  *xorm.Engine
 )
 
 type RunConf struct {

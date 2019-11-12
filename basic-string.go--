@@ -25,11 +25,14 @@ import (
 	"unicode/utf8"
 )
 
-func okLog(s string) {
+func OkLog(s string) {
 	log.Println("[OK] " + s)
 }
 func errLog(s string, err error) {
 	log.Println("[ERROR] " + s + ": " + err.Error())
+}
+func tp(a ...interface{}) {
+	fmt.Println(a)
 }
 
 func prpbPair(keyLeng int) ([]byte, []byte) {
@@ -439,10 +442,6 @@ func myErr(s string, e error) error {
 	whereami(4)
 	fmt.Println(strings.Repeat("=", 100))
 	return errors.New(emsg)
-}
-
-func tp(a ...interface{}) {
-	fmt.Println(a)
 }
 
 func getNow() time.Time {

@@ -9,7 +9,7 @@ import (
 
 var (
 	XEnv *EnvConf
-	XDb  *xorm.Engine
+	XDB  *xorm.Engine
 )
 
 type RunConf struct {
@@ -46,24 +46,26 @@ func GetEnvConf() error {
 	var run RunConf
 
 	if file, err := os.Open(RunFilename); err != nil {
+		MyErr("SDFLJDSAFJA", nil, true)
 		return err
 	} else {
 		decoder := json.NewDecoder(file)
-		err = decoder.Decode(&run)
+		if err = decoder.Decode(&run); err != nil {
+			MyErr("LASJLDFJASFJ", err, true)
+			return err
+		}
 	}
 
-	filename := ""
-	if run.RunMode == "prod" {
-		filename = conf + run.ProdPrefix + run.ConfPostFix
-	} else if run.RunMode == "dev" {
-		filename = conf + run.DevPrefix + run.ConfPostFix
-	}
-
+	filename := conf + run.RunMode + run.ConfPostFix
 	if file, err := os.Open(filename); err != nil {
+		MyErr("QERTRRTRRW", err, true)
 		return err
 	} else {
 		decoder := json.NewDecoder(file)
-		err = decoder.Decode(&XEnv)
+		if err = decoder.Decode(&XEnv); err != nil {
+			MyErr("LAAFDFERHY", err, true)
+			return err
+		}
 	}
 
 	if XEnv.DbType == "mysql" {
