@@ -3,13 +3,12 @@
 // End-Agent for Passcon Multi OS go binding with Windows, MacOS, iOS, and Android
 // All rights are reserved.
 
-package abango
+package etc
 
 import (
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/base64"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -30,12 +29,12 @@ func GetAskName() string {
 	return ""
 }
 
-func (t *EnvConf) StrToStruct(str string) {
-	if err := json.Unmarshal([]byte(str), &t); err != nil {
-		MyErr("sjdfljsf", err, true)
-	}
-	return
-}
+// func (t *EnvConf) StrToStruct(str string) {
+// 	if err := json.Unmarshal([]byte(str), &t); err != nil {
+// 		MyErr("sjdfljsf", err, true)
+// 	}
+// 	return
+// }
 
 func randString(i int) string {
 	b := make([]byte, i)

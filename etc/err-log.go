@@ -3,7 +3,7 @@
 // End-Agent for Passcon Multi OS go binding with Windows, MacOS, iOS, and Android
 // All rights are reserved.
 
-package abango
+package etc
 
 import (
 	"errors"
@@ -15,12 +15,14 @@ import (
 )
 
 func OkLog(s string) {
-	log.Println("[OK] " + s)
+	log.Println("[OK]: " + s)
 }
 
 func ErrLog(point string, err error) {
-	log.Println("[ERROR] :" + point)
-	fmt.Println("[err.Error()]:", err)
+	log.Println("[ERROR]: " + point)
+	if err != nil {
+		fmt.Println("[err.Error()]:", err)
+	}
 }
 
 func ChkLog(point string, x ...interface{}) {
@@ -33,7 +35,7 @@ func ChkLog(point string, x ...interface{}) {
 // }
 
 func MyErr(s string, e error, eout ...bool) error {
-	fmt.Println("== [MyErr-ABANGO] Position -> ", s, strings.Repeat("=", 50))
+	fmt.Println("== [ABANGO]-[MyErr] Position -> ", s, strings.Repeat("=", 40))
 
 	emsg := ""
 	if e != nil {
