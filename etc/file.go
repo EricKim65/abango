@@ -99,30 +99,30 @@ func FileToStr(filename string) (string, error) {
 // 	return nil
 // }
 
-func fileCopy(src, dst string) error { // Copy시메모리 소모 없슴.
-	sFile, err := os.Open(src)
-	if err != nil {
-		return MyErr("File Open", err)
-	}
-	defer sFile.Close()
+// func fileCopy(src, dst string) error { // Copy시메모리 소모 없슴.
+// 	sFile, err := os.Open(src)
+// 	if err != nil {
+// 		return MyErr("File Open", err, false)
+// 	}
+// 	defer sFile.Close()
 
-	eFile, err := os.Create(dst)
-	if err != nil {
-		return MyErr("File Create", err)
-	}
-	defer eFile.Close()
+// 	eFile, err := os.Create(dst)
+// 	if err != nil {
+// 		return MyErr("File Create", err, false)
+// 	}
+// 	defer eFile.Close()
 
-	_, err = io.Copy(eFile, sFile) // first var shows number of bytes
-	if err != nil {
-		return MyErr("File Copy", err)
-	}
+// 	_, err = io.Copy(eFile, sFile) // first var shows number of bytes
+// 	if err != nil {
+// 		return MyErr("File Copy", err, false).Error()
+// 	}
 
-	err = eFile.Sync()
-	if err != nil {
-		return MyErr("File Open", err)
-	}
-	return nil
-}
+// 	err = eFile.Sync()
+// 	if err != nil {
+// 		return MyErr("File Open", err, false)
+// 	}
+// 	return nil
+// }
 
 //  정비해야지 쓸수 있슴.
 func UriToFile(uri string, filepath string) error {

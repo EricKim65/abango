@@ -34,14 +34,14 @@ func ChkLog(point string, x ...interface{}) {
 // 	os.Exit(1000)
 // }
 
-func MyErr(s string, e error, eout ...bool) error {
-	fmt.Println("== [ABANGO]-[MyErr] Position -> ", s, strings.Repeat("=", 40))
+func MyErr(s string, e error, eout bool) error {
+	fmt.Println("[MyErr] Position -> ", s, strings.Repeat("=", 40))
 
 	emsg := ""
 	if e != nil {
 		emsg = "Error: " + e.Error()
 	} else {
-		emsg = "ERROR is Nil: Wrong Error Check !!!  "
+		emsg = "ERROR is Nil: Wrong Error Check: Check err != OR err == is correct !  "
 	}
 	fmt.Println(emsg, "\n")
 	whereami(2)
@@ -49,7 +49,7 @@ func MyErr(s string, e error, eout ...bool) error {
 	whereami(4)
 	fmt.Println(strings.Repeat("=", 80))
 
-	if e != nil && eout[0] == true { // quit running if it is FATAL ERROR
+	if e != nil && eout == true { // quit running if it is FATAL ERROR
 		log.Println("[FATAL-ERROR] : EXIT 100")
 		os.Exit(100)
 	}

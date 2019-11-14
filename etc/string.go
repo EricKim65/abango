@@ -12,7 +12,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"reflect"
 	"strings"
 	"unicode/utf8"
 )
@@ -108,30 +107,30 @@ func getCnt(s []byte, cnt int) []byte {
 	return ret
 }
 
-func structToMap(in interface{}, tag string) (map[string]interface{}, error) {
-	out := make(map[string]interface{})
+// func structToMap(in interface{}, tag string) (map[string]interface{}, string) {
+// 	out := make(map[string]interface{})
 
-	v := reflect.ValueOf(in)
-	if v.Kind() == reflect.Ptr {
-		v = v.Elem()
-	}
+// 	v := reflect.ValueOf(in)
+// 	if v.Kind() == reflect.Ptr {
+// 		v = v.Elem()
+// 	}
 
-	// we only accept structs
-	if v.Kind() != reflect.Struct {
-		fmt.Errorf("ToMap only accepts structs; got %T", v)
-		return nil, MyErr("only accepts structs", nil)
-	}
+// 	// we only accept structs
+// 	if v.Kind() != reflect.Struct {
+// 		fmt.Errorf("ToMap only accepts structs; got %T", v)
+// 		return nil, MyErr("only accepts structs", nil, false)
+// 	}
 
-	typ := v.Type()
-	for i := 0; i < v.NumField(); i++ {
-		// gets us a StructField
-		fi := typ.Field(i)
-		if tagv := fi.Tag.Get(tag); tagv != "" {
-			out[tagv] = v.Field(i).Interface()
-		}
-	}
-	return out, nil
-}
+// 	typ := v.Type()
+// 	for i := 0; i < v.NumField(); i++ {
+// 		// gets us a StructField
+// 		fi := typ.Field(i)
+// 		if tagv := fi.Tag.Get(tag); tagv != "" {
+// 			out[tagv] = v.Field(i).Interface()
+// 		}
+// 	}
+// 	return out, ""
+// }
 
 func parentDir() string { // Copy시메모리 소모 없슴.
 	workDir, _ := os.Getwd()
@@ -148,7 +147,7 @@ func getOTp(n int) []byte {
 	bytes := make([]byte, n)
 	_, err := rand.Read(bytes)
 	if err != nil {
-		MyErr("rand.Read", err)
+		MyErr("rand.Read", err, false)
 	}
 
 	for i, b := range bytes {

@@ -15,6 +15,9 @@ var (
 	XDB  *xorm.Engine
 )
 
+type Controller struct {
+}
+
 type EnvConf struct {
 	AppName      string
 	HttpProtocol string
