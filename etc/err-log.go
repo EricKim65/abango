@@ -60,6 +60,10 @@ func Tp(a ...interface{}) {
 	fmt.Println(a)
 }
 
+func Atp(a ...interface{}) {
+	fmt.Println("[Abango]->", a)
+}
+
 func agErr(s string, e error, amsg *string) string {
 	fmt.Println("== agErr ", strings.Repeat("=", 90))
 	// fpcs := make([]uintptr, 1)

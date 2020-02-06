@@ -16,6 +16,12 @@ import (
 	"unicode/utf8"
 )
 
+func RandString(i int) string {
+	b := make([]byte, i)
+	rand.Read(b)
+	return (base64.URLEncoding.EncodeToString(b))[0:i]
+}
+
 func GetAskName() string {
 
 	i := len(os.Args)
