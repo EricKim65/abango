@@ -6,22 +6,11 @@ import (
 	"strings"
 	time "time"
 
-	cf "github.com/EricKim65/abango/config"
-	e "github.com/EricKim65/abango/etc"
-
-	g "github.com/EricKim65/abango/global"
-	gr "github.com/EricKim65/abango/grpc"
-	kf "github.com/EricKim65/abango/kafka"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/go-xorm/xorm"
 )
-
-var (
-	XEnv *EnvConf     //Kangan only
-	XDB  *xorm.Engine //Kangan only
-
-	XConfig map[string]string //Kangan only
-)
+import "sync"
+import e "github.com/EricKim65/abango/etc"
 
 // type Controller struct {
 // }
@@ -56,73 +45,109 @@ func init() {
 	// e.OkLog("Abango Initialized")
 }
 
-func RunServicePoint(params ...string) {
-	if err := cf.GetXConfig(); err == nil {
-		if g.XConfig["ApiType"] == "Kafka" {
-			kf.KafkaServiveStandBy()
-		} else if g.XConfig["ApiType"] == "gRpc" {
-			gr.GrpcServiveStandBy()
-		} else {
-			e.MyErr("Error running ServicePoint", nil, true)
-		}
+func RunServicePoint(KafkaHandler func(ask *AbangoAsk), GrpcHandler func(), RestHandler func(ask *AbangoAsk)) {
+	// func RunServicePoint(KafkaHandler func(ask *AbangoAsk), GrpcHandler func(), RestHandler func(ask *AbangoAsk)) {
 
-		// 	if g.XConfig["KafkaUse"] == "Yes" {
-		// 		kf.KafkaServiveStandBy()
-		// 	}
-		// if g.XConfig["gRpcUse"] == "Yes" {
-		// 	gr.GrpcServiveStandBy()
-		// }
+	// KafkaSvcStandBy(KafkaHandler)
+	// GrpcSvcStandBy(GrpcHandler)
+
+	var wg sync.WaitGroup
+
+	// wg.Add(1)
+	// go func() {
+	// 	GrpcSvcStandBy(GrpcHandler)
+	// 	wg.Done()
+	// }()
+	// wg.Add(1)
+	// go func() {
+	// 	RestSvcStandBy(RestHandler)
+	// 	wg.Done()
+	// }()
+
+	e.AokLog("Abango Clustered Framework Started !")
+	if err := GetXConfig(); err == nil {
+		if XConfig["KafkaOn"] == "Yes" {
+			wg.Add(1)
+			go func() {
+				KafkaSvcStandBy(KafkaHandler)
+				wg.Done()
+			}()
+		}
+		if XConfig["gRpcOn"] == "Yes" {
+			// e.AokLog("gRpc API StandBy !")
+			wg.Add(1)
+			go func() {
+				GrpcSvcStandBy(GrpcHandler)
+				wg.Done()
+			}()
+		}
+		if XConfig["RestOn"] == "Yes" {
+			// e.AokLog("RESTful API StandBy !")
+			wg.Add(1)
+			go func() {
+				RestSvcStandBy(RestHandler)
+				wg.Done()
+			}()
+		}
 
 	} else {
 		e.Atp("Error running RunServicePoint")
 	}
-	// e.Atp(g.XConfig["Dummy"])
+
+	wg.Wait()
+
 }
 
 func RunEndRequest(params ...string) {
-	if err := cf.GetXConfig(); err == nil {
-		if g.XConfig["ApiType"] == "Kafka" {
-			RunRequest(kf.KafkaSyncRequest)
-			// } else if g.XConfig["ApiType"] == "gRpc" {
-			// 	RunRequest(gr.GrpcRequest)
+	if err := GetXConfig(); err == nil {
+		if XConfig["ApiType"] == "Kafka" {
+			RunRequest(KafkaRequest)
+		} else if XConfig["ApiType"] == "gRpc" {
+			RunRequest(GrpcRequest)
+		} else if XConfig["ApiType"] == "Rest" {
+			RunRequest(RestRequest)
 		} else {
 			e.Atp("Error running RunEndPoint")
 		}
 	} else {
 
 	}
-	// e.Atp(g.XConfig["Dummy"])
+	// e.Atp(XConfig["Dummy"])
 }
 
-func RunRequest(MsgHandler func(string, string) (string, string, error)) error {
-
-	var a g.AbangoAsk
+func RunRequest(MsgHandler func(v *AbangoAsk) (string, string, error)) error {
 
 	unique_id := e.RandString(20)
 
 	askfile := e.GetAskName()
 	arrask := strings.Split(askfile, "@") // @앞의 문자를 askname으로 설정
 	askname := arrask[0]
-	jsonsend := g.XConfig["JsonSendDir"] + askname + ".json"
-	jsonreceive := g.XConfig["JsonReceiveDir"] + askname + ".json"
+	apimethod := ""
+	if len(arrask) >= 2 {
+		apimethod = arrask[1]
+	}
+	jsonsend := XConfig["JsonSendDir"] + askname + ".json"
+	jsonreceive := XConfig["JsonReceiveDir"] + askname + ".json"
+	jsonsvrparams := XConfig["JsonServerParamsPath"]
 
-	// kk := []g.ComVar{}
-	jsonsvrvars := "conf/server-vars.json"
-	if file, err := os.Open(jsonsvrvars); err == nil {
-		decoder := json.NewDecoder(file)
-		if err = decoder.Decode(&a.ServerVars); err == nil {
-
+	if file, err := os.Open(jsonsvrparams); err == nil {
+		var v AbangoAsk
+		if err = json.NewDecoder(file).Decode(&v.ServerParams); err == nil {
 			if askstr, err := e.FileToStr(jsonsend); err == nil {
+				v.ApiType = XConfig["ApiType"]
+				v.AskName = askname
+				v.UniqueId = unique_id
+				v.Body = []byte(askstr)
 
-				a.AskName = askname
-				a.UniqueId = unique_id
-				a.Body = []byte(askstr)
-
-				askstr, _ := json.Marshal(&a)
-				if retstr, retsta, err := MsgHandler(string(askstr), unique_id); err == nil {
+				for i := 0; i < len(v.ServerParams); i++ {
+					if v.ServerParams[i].Key == "api_method" {
+						v.ServerParams[i].Value = apimethod
+					}
+				}
+				if retstr, retsta, err := MsgHandler(&v); err == nil {
 					e.Tp("ReturnStatus: " + retsta + "  ReturnJsonFile: " + jsonreceive)
 					e.StrToFile(jsonreceive, retstr)
-					if g.XConfig["ShowReceivedJson"] == "Yes" {
+					if XConfig["ShowReceivedJson"] == "Yes" {
 						e.Tp(retstr)
 					}
 				} else {
@@ -132,38 +157,12 @@ func RunRequest(MsgHandler func(string, string) (string, string, error)) error {
 				e.MyErr("WERZDSVCZSRE-JsonSendFile", err, true)
 			}
 		} else {
-			return e.MyErr("LAAFDFERHYWE", err, true)
+			return e.MyErr("LAAFDFDFERHYWE", err, true)
 		}
 	} else {
-		return e.MyErr("LAAFDFDWDERHYWE", err, true)
+		return e.MyErr("LAAFDFDWDERHYWE-"+jsonsvrparams+" file not found", err, true)
 	}
 
-	// if fvar, err := cf.GetServerVarsInEnd(askname); err == nil {
-	// 	if askstr, err := e.FileToStr(jsonsend); err == nil {
-
-	// 		a.AskName = askname
-	// 		a.UniqueId = unique_id
-	// 		a.Ask.Body = []byte(askstr)
-	// 		a.Ask.ServerVars =
-
-	// 		delim := g.XConfig["MsgDelimiter"]
-	// 		combined_msg := askname + delim + fvar + delim + askstr
-	// 		// e.Tp(combined_msg)
-	// 		if retstr, retsta, err := MsgHandler(combined_msg); err == nil {
-	// 			e.Tp("ReturnStatus: " + retsta + "  ReturnJsonFile: " + jsonreceive)
-	// 			e.StrToFile(jsonreceive, retstr)
-	// 			if g.XConfig["ShowReceivedJson"] == "Yes" {
-	// 				e.Tp(retstr)
-	// 			}
-	// 		} else {
-	// 			e.MyErr("QWERDSFAERQRDA-MsgHandler", err, true)
-	// 		}
-	// 	} else {
-	// 		e.MyErr("WERZDSVCZSRE-JsonSendFile", err, true)
-	// 	}
-	// } else {
-	// 	e.MyErr("QERVZDBXTRFG-MsgHandler", err, true)
-	// }
 	return nil
 }
 

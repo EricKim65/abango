@@ -1,25 +1,36 @@
-package kafka
+package abango
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	e "github.com/EricKim65/abango/etc"
-	g "github.com/EricKim65/abango/global"
 	"github.com/Shopify/sarama"
 )
 
 //////////// Kafka EndPoint /////////////
-func KafkaSyncRequest(askstr string, retTopic string) (string, string, error) {
+func KafkaRequest(v *AbangoAsk) (string, string, error) {
 
-	topic := g.XConfig["KafkaTopic"]
-	conn := g.XConfig["KafkaAddr"] + ":" + g.XConfig["KafkaPort"]
-	if _, _, err := KafkaSyncProducer(askstr, topic, conn); err == nil {
-		TmpInt, _ := strconv.Atoi(g.XConfig["KafkaCosumerTimeout"])
+	topic := XConfig["KafkaTopic"]
+	conn := XConfig["KafkaAddr"] + ":" + XConfig["KafkaPort"]
+
+	svars := make(map[string]string)
+	for _, p := range v.ServerParams {
+		svars[p.Key] = p.Value
+	}
+	apiMethod := strings.ToUpper(svars["api_method"])
+
+	ReturnTopic := v.UniqueId
+
+	askstr, _ := json.Marshal(&v)
+	if _, _, err := KafkaProducer(string(askstr), topic, conn, apiMethod); err == nil {
+		TmpInt, _ := strconv.Atoi(XConfig["KafkaCosumerTimeout"])
 		timeout := int64(TmpInt)
-		if msg, err := KafkaReturnConsumer(retTopic, conn, timeout); err == nil {
+		if msg, err := KafkaReturnConsumer(ReturnTopic, conn, timeout); err == nil {
 			return msg, "200", nil // Normal Retrun
 		} else {
 			return "", "K503", err //Servuce Unavailable

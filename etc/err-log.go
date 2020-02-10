@@ -18,6 +18,10 @@ func OkLog(s string) {
 	log.Println("[OK]: " + s)
 }
 
+func AokLog(s string) {
+	log.Println("[Abango-OK]: " + s)
+}
+
 func ErrLog(point string, err error) {
 	log.Println("[ERROR]: " + point)
 	if err != nil {

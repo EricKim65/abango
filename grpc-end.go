@@ -1,22 +1,22 @@
-package grpc
+package abango
 
 import (
 	"context"
+	"encoding/json"
 	"time"
 
 	grp1 "github.com/EricKim65/abango/protos"
 
 	e "github.com/EricKim65/abango/etc"
-	g "github.com/EricKim65/abango/global"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
 )
 
-func GrpcRequest(askstr string, dummy string) (string, string, error) {
+func GrpcRequest(v *AbangoAsk) (string, string, error) {
 
 	dial, err := grpc.Dial(
-		g.XConfig["gRpcAddr"]+":"+g.XConfig["gRpcPort"],
+		XConfig["gRpcAddr"]+":"+XConfig["gRpcPort"],
 		grpc.WithInsecure(),
 		grpc.WithKeepaliveParams(keepalive.ClientParameters{
 			Time:                time.Millisecond,
@@ -35,6 +35,7 @@ func GrpcRequest(askstr string, dummy string) (string, string, error) {
 	defer cancel()
 
 	// e.Tp(askstr)
+	askstr, _ := json.Marshal(&v)
 	if r, err := c.StdRpc(ctx, &grp1.StdAsk{AskMsg: []byte(askstr)}); err == nil {
 		return string(r.RetMsg), string(r.RetSta), nil
 	} else {
