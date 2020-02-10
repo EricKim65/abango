@@ -25,7 +25,7 @@ type Controller struct {
 	actionName     string
 	ConnString     string
 	ServerVars     map[string]string //Fronrt End Server Variables
-	GlobalVars     []Param
+	GlobalVars     map[string]string //Fronrt End Global Variables
 	Data           map[interface{}]interface{}
 }
 
