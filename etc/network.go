@@ -20,9 +20,6 @@ func GetHttpResponse(method string, apiurl string, jsBytes []byte) ([]byte, []by
 	// fmt.Printf("v.Encode(): %v\n", s)
 	reader := strings.NewReader(form.Encode())
 
-	// req, err := http.NewRequest("GET", "http://localhost:8080/v1/template/4", nil)
-	Tp(method)
-	Tp(apiurl)
 	req, err := http.NewRequest(method, apiurl, reader)
 	if err != nil {
 		return nil, []byte("909"), MyErr("WERZDSVADFZ-http.NewRequest", err, true)
