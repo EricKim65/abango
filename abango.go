@@ -224,7 +224,10 @@ func GetEnvConf() error { // Kangan only
 	}
 
 	if XEnv.DbType == "mysql" {
-		XEnv.DbStr = XEnv.DbUser + ":" + XEnv.DbPassword + "@tcp(" + XEnv.DbHost + ":" + XEnv.DbPort + ")/" + XEnv.DbPrefix + XEnv.DbName + "?charset=utf8"
+		XEnv.DbStr = XEnv.DbUser + ":example-password@tcp(" + XEnv.DbHost + ":" + XEnv.DbPort + ")/" + XEnv.DbPrefix + XEnv.DbName + "?charset=utf8"
+		e.Tp(XEnv.DbStr)
+		XEnv.DbStr = strings.Replace(XEnv.DbStr, "example-password", XEnv.DbPassword, -1)
+
 	} else if XEnv.DbType == "mssql" {
 		// Add on more DbStr of Db types
 	}
