@@ -1,8 +1,8 @@
 package abango
 
 import (
+	"github.com//sarama"
 	e "github.com/EricKim65/abango/etc"
-	"github.com/Shopify/sarama"
 )
 
 func KafkaProducer(message string, topic string, conn string, apiMethod string) (int32, int64, error) {

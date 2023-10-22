@@ -5,10 +5,10 @@ import (
 	"fmt"
 
 	e "github.com/EricKim65/abango/etc"
-	"github.com/Shopify/sarama"
+	"github.com/IBM/sarama"
 )
 
-//////////// Kafka Service /////////////
+// ////////// Kafka Service /////////////
 func KafkaSvcStandBy(RouterHandler func(*AbangoAsk)) {
 
 	kfcf := sarama.NewConfig()

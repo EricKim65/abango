@@ -6,11 +6,13 @@ import (
 	"strings"
 	time "time"
 
+	"sync"
+
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/go-xorm/xorm"
+
+	e "github.com/EricKim65/abango/etc"
 )
-import "sync"
-import e "github.com/EricKim65/abango/etc"
 
 // type Controller struct {
 // }

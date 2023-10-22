@@ -9,10 +9,10 @@ import (
 	"time"
 
 	e "github.com/EricKim65/abango/etc"
-	"github.com/Shopify/sarama"
+	"github.com/IBM/sarama"
 )
 
-//////////// Kafka EndPoint /////////////
+// ////////// Kafka EndPoint /////////////
 func KafkaRequest(v *AbangoAsk) (string, string, error) {
 
 	topic := XConfig["KafkaTopic"]
